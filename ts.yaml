@@ -1,0 +1,14 @@
+apiVersion: k8s.nginx.org/v1alpha1
+kind: TransportServer
+metadata:
+  name: coffee-tcp
+spec:
+  listener:
+    name: coffee-tcp
+    protocol: TCP
+  upstreams:
+  - name: coffee-service
+    service: coffee-svc
+    port: 80
+  action:
+    pass: coffee-service

@@ -2,11 +2,12 @@
 This lab covers installing NGINX Ingress Controller on the OpenShift Container Platform and exposing a TCP service for load balancing.
 
 # Table of Contents
-1. Accessing OpenShift
-2. Manual Installation
-3. Installation using the OLM
-4. Deploying NGINX Ingress Operator
-5. Deploying TCP service
+1. [Getting Started](#getting-started)
+2. [Accessing OpenShift](#accessing-openshift)
+3. [Manual Installation](#manual-installation)
+4. [Installation using the OLM](#installation-using-the-OLM)
+5. [Deploying NGINX Ingress Operator](#deploying-nginx-ingress-operator)
+6. [Deploying TCP service](#deploying-tcp-service)
 
 # NGINX Ingress Controller on OpenShift
 
@@ -14,7 +15,6 @@ This lab covers installing NGINX Ingress Controller on the OpenShift Container P
 
 Login with XRDP in the ocp-provisioner node.
 
-[picture of VNC screen]
 
 ## Accessing Openshift
 
@@ -78,7 +78,7 @@ In order to deploy NGINX Ingress Controller instances into OpenShift environment
 
 `oc apply -f` [`https://raw.githubusercontent.com/nginxinc/nginx-ingress-helm-operator/main/resources/scc.yaml`](https://raw.githubusercontent.com/nginxinc/nginx-ingress-helm-operator/main/resources/scc.yaml)
 
-## Installing using the OLM
+## Installation using the OLM
 
 This installation method is the recommended way for Openshift users. **Note**: Openshift version must be 4.2 or higher.
 

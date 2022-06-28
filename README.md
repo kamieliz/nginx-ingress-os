@@ -65,7 +65,7 @@ cd nginx-ingress-helm-operator/
 git checkout v1.0.0
 ```
 
-   2. `Openshift` To deploy the Operator and associated resources to an OpenShift environment, run:
+   2. To deploy the Operator and associated resources to an OpenShift environment, run:
 
 ```other
 make deploy IMG=nginx/nginx-ingress-operator:1.0.0

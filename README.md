@@ -424,3 +424,10 @@ oc get svc nginx-ingress -n nginx-ingress
 
 ![image](https://user-images.githubusercontent.com/4666871/176209157-f2f6130d-819a-49a7-abb8-a89446d37a3a.png)
 
+## Additional Resources
+[TransportServer documentation](https://docs.nginx.com/nginx-ingress-controller/configuration/transportserver-resource/) – NGINX docs
+[Basic TCP/UDP Load Balancing examples](https://github.com/nginxinc/kubernetes-ingress/tree/main/examples/custom-resources) – NGINX Inc. Github repository
+[Using NGINX Ingress Controller on Red Hat Openshift](https://www.redhat.com/en/blog/using-nginx-ingress-controller-red-hat-openshift) – blog post + tutorial
+[Installation with NGINX Ingress Operator](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-operator/)– nginx docs
+[OpenShift CLI (oc) developer commands](https://docs.openshift.com/container-platform/4.8/cli_reference/openshift_cli/developer-cli-commands.html#openshift-cli-developer_cli-developer-commands)– OpenShift reference docs
+[Expose a UDP Application with NGINX+ Ingress Controller](https://docs.nginx.com/nginx-service-mesh/tutorials/kic/ingress-udp-walkthrough/) – NGINX docs tutorial

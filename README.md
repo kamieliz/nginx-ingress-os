@@ -80,21 +80,21 @@ NAME                                        READY   UP-TO-DATE   AVAILABLE   AGE
 nginx-ingress-operator-controller-manager   1/1     1            1           15s
 ```
 
-5. `Openshift` Additional steps:
+5. Additional steps:
 
 In order to deploy NGINX Ingress Controller instances into OpenShift environments, a new SCC is required to be created on the cluster which will be used to bind the specific required capabilities to the NGINX Ingress service account(s). To do so, please run the following command (assuming you are logged in with administrator access to the cluster):
 
 ```other
-oc apply -f main/resources/scc.yaml
+oc apply -f resources/scc.yaml
 ```
 
 ## Installation using the OLM
 
-This installation method is the recommended way for Openshift users. **Note**: Openshift version must be 4.2 or higher.
+This installation method is the recommended way for Openshift users. In this lab environment, NGINX Ingress Operator is already installed for all namespaces. 
 
 **Note: The `nginx-ingress-operator` supports `Basic Install` only - we do not support auto-updates. When you are installing the Operator using the OLM, the auto-update feature should be disabled to avoid breaking changes being auto-applied. In OpenShift, this can be done by setting the `Approval Strategy` to `Manual`. Please see the** [**Operator SDK docs**](https://sdk.operatorframework.io/docs/advanced-topics/operator-capabilities/operator-capabilities/)** for more details on the Operator Capability Levels.**
 
-The NGINX Ingress Operator is a [RedHat certified Operator](https://connect.redhat.com/en/partner-with-us/red-hat-openshift-operator-certification).
+The NGINX Ingress Operator is a [RedHat certified Operator](https://connect.redhat.com/en/partner-with-us/red-hat-openshift-operator-certification). **Note**: Openshift version must be 4.2 or higher.
 
 ![openshift1.png](https://github.com/nginxinc/nginx-ingress-helm-operator/raw/v1.0.0/docs/images/openshift1.png)
 
@@ -122,7 +122,7 @@ oc apply -f https://raw.githubusercontent.com/nginxinc/nginx-ingress-helm-operat
 
 ## Deploying NGINX Ingress Operator
 
-Now to use NGINX Ingress Controller to expose a TCP service, you have to allow global configurations in the NGINX Ingress Deployment. 
+Now to use NGINX Ingress Controller to expose a TCP service, you have to allow globalconfiguration resources in the NGINX Ingress Deployment. 
 
 1. Change directory back to home
 
@@ -136,7 +136,7 @@ cd ~
 nano 1_kubernetes-ingress/deployments/deployment/1_nginx-plus-ingress_custom.yaml
 ```
 
-3. Uncomment the section that says:
+3. Uncomment the global configuration section under args. Make sure to maintain the spacing:
 
 ```other
 - -global-configuration=$(POD_NAMESPACE)/nginx-configuration
@@ -146,59 +146,6 @@ nano 1_kubernetes-ingress/deployments/deployment/1_nginx-plus-ingress_custom.yam
 
 ```other
 oc apply -f 1_kubernetes-ingress/deployments/deployment/1_nginx_plus-ingress_custom.yaml
-```
-
-To create the nginx-ingress service that allows access to tcp port 81
-
-`nano nodeport_custom.yaml`
-
-```other
-apiVersion: v1
-kind: Service
-metadata:
-  name: nginx-ingress
-  namespace: nginx-ingress
-  labels:
-    app: nginx-ingress
-spec:
-  externalTrafficPolicy: Local
-  type: NodePort
-  ports:
-  - port: 80
-    targetPort: 80
-    nodePort: 30080
-    protocol: TCP
-    name: http
-  - port: 81
-    targetPort: 81
-    nodePort: 30081
-    protocol: TCP
-    name: transport-tcp
-  - port: 443
-    targetPort: 443
-    nodePort: 30443
-    protocol: TCP
-    name: https
-  - port: 8081
-    targetPort: 8081
-    nodePort: 32081
-    protocol: TCP
-    name: readiness-port
-  - port: 8080
-    targetPort: 8080
-    nodePort: 32080
-    protocol: TCP
-    name: dashboard
-  - port: 9113
-    targetPort: 9113
-    nodePort: 32113
-    protocol: TCP
-    name: prometheus
-  selector:
-    app: nginx-ingress
-```
-```other
-oc apply -f nodeport_custom.yaml
 ```
 
 ## Deploying TCP service
@@ -220,12 +167,83 @@ oc config set-context —current —namespace=tcp-test
 ```other
 Oc apply -f https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/main/examples/custom-resources/basic-configuration/cafe.yaml
 ```
+```other
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coffee
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: coffee
+  template:
+    metadata:
+      labels:
+        app: coffee
+    spec:
+      containers:
+      - name: coffee
+        image: nginxdemos/nginx-hello:plain-text
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: coffee-svc
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: coffee
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tea
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tea 
+  template:
+    metadata:
+      labels:
+        app: tea 
+    spec:
+      containers:
+      - name: tea 
+        image: nginxdemos/nginx-hello:plain-text
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tea-svc
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: tea
+```
 
 4. Once that is applied you can check your pods and see coffee and tea running
 
 ```other
 oc get pods
 ```
+You can also view this on the OpenShift Container Platform GUI
+
+![image](https://user-images.githubusercontent.com/4666871/176206531-340f4fb4-2be6-4fd5-99af-757e8012f912.png)
+
 
  In order to expose a TCP or UDP application, a [GlobalConfiguration](https://docs.nginx.com/nginx-ingress-controller/configuration/global-configuration/globalconfiguration-resource/) resource needs to be implemented as a [Custom Resource](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/). The Ingress controller only needs one GlobalConfiguration resource.
 
@@ -282,13 +300,21 @@ spec:
 oc apply -f ts.yaml
 ```
 
-7. Once the transport server configuration is applied, grab the nginx-ingress pod name to run the required configuration to expose the tcp service:
+7. Once the transport server configuration is applied, grab the nginx-ingress pod name:
+
+```other
+oc get pods -n nginx-ingress
+```
+
+8. Use the nginx ingress pod name to exceute a script that will expose our tcp service: 
 
 ```other
 oc exec -n nginx-ingress nginx-ingress-[unique name] — nginx -T | grep ‘coffee-tcp’ -C 6
 ```
+![image](https://user-images.githubusercontent.com/4666871/176208152-0a576fdd-381e-4501-bf2a-d8e028781c64.png)
 
-8. View the ports available to access our service externally:
+
+9. View the ports available to access our service externally:
 
 ```other
 oc get svc nginx-ingress -n nginx-ingress
@@ -301,6 +327,13 @@ oc get svc nginx-ingress -n nginx-ingress
 ![image](https://user-images.githubusercontent.com/4666871/176065586-c4062780-5a67-4521-b326-3bc4440792a3.png)
 ![image](https://user-images.githubusercontent.com/4666871/176065554-64f4b760-619f-4953-9bc6-4871f7b17ea3.png)
 
-2. You can use the bookmark [http://10.1.1.6:30081/](http://10.1.1.6:30081/) to access the service via browser. Each time you open a new incognito browser you will get loadbalanced to a different POD (you see the POD hash changing under Server name:)
+2. You can use [http://10.1.1.6:30081/](http://10.1.1.6:30081/) to access the service via browser. Each time you open a new incognito browser you will get loadbalanced to a different POD (you see the POD hash changing under Server name:)
 
 ![image](https://user-images.githubusercontent.com/4666871/176065508-63bbeac1-778f-438c-84d7-12111978c46a.png)
+
+3. To scale your coffee deployment up or down, you can use the GUI
+
+![image](https://user-images.githubusercontent.com/4666871/176208973-01e9b2d3-94a2-4e7b-8538-468dcca0406b.png)
+
+![image](https://user-images.githubusercontent.com/4666871/176209157-f2f6130d-819a-49a7-abb8-a89446d37a3a.png)
+

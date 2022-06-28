@@ -320,11 +320,8 @@ To access the listener from external
 
 you can go to NGINX Dashboard to see the TCP/UDP upstreams
 
-![Image](https://res.craft.do/user/full/d367a179-adcb-7ce8-0b02-ba52d2a7c917/doc/F7779AE5-6B4A-46F8-A1A7-EE43F5EFE81D/3B3B7D64-AB4A-418F-BA50-209EFD152478_2/Image)
-
-![Image](https://res.craft.do/user/full/d367a179-adcb-7ce8-0b02-ba52d2a7c917/doc/F7779AE5-6B4A-46F8-A1A7-EE43F5EFE81D/D6B7A65E-FD5D-4E9D-BB0B-158FF50A8E31_2/Image)
-
+![image](https://user-images.githubusercontent.com/4666871/176065586-c4062780-5a67-4521-b326-3bc4440792a3.png)
+![image](https://user-images.githubusercontent.com/4666871/176065554-64f4b760-619f-4953-9bc6-4871f7b17ea3.png)
 You can use the bookmark [http://10.1.1.6:30081/](http://10.1.1.6:30081/) to access the service via browser. Each time you open a new incognito browser you will get loadbalanced to a different POD (you see the POD hash changing under Server name:)
 
-![Image](https://res.craft.do/user/full/d367a179-adcb-7ce8-0b02-ba52d2a7c917/doc/F7779AE5-6B4A-46F8-A1A7-EE43F5EFE81D/C698CEED-7635-424B-A1B3-C929A70E25E8_2/Image)
-
+![image](https://user-images.githubusercontent.com/4666871/176065508-63bbeac1-778f-438c-84d7-12111978c46a.png)

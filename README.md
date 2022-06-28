@@ -136,6 +136,93 @@ cd ~
 nano 1_kubernetes-ingress/deployments/deployment/1_nginx-plus-ingress_custom.yaml
 ```
 
+```other
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-ingress
+  namespace: nginx-ingress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-ingress
+  template:
+    metadata:
+      labels:
+        app: nginx-ingress
+     #annotations:
+       #prometheus.io/scrape: "true"
+       #prometheus.io/port: "9113"
+       #prometheus.io/scheme: http
+    spec:
+      serviceAccountName: nginx-ingress
+      containers:
+      - image: default-route-openshift-image-registry.apps.ocp.f5-udf.com/nginx-ingress/openshift-image-plus-nap-dos:2.2.1_2022-05-20
+        imagePullPolicy: IfNotPresent
+        name: nginx-plus-ingress
+        ports:
+        - name: http
+          containerPort: 80
+        - name: transport-tcp
+          containerPort: 81
+        - name: https
+          containerPort: 443
+        - name: dashboard
+          containerPort: 8080
+        - name: readiness-port
+          containerPort: 8081
+        - name: prometheus
+          containerPort: 9113
+        readinessProbe:
+          httpGet:
+            path: /nginx-ready
+            port: readiness-port
+          periodSeconds: 1
+        securityContext:
+          allowPrivilegeEscalation: true
+          runAsUser: 101 #nginx
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_BIND_SERVICE
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        args:
+          - -nginx-plus
+          - -nginx-configmaps=$(POD_NAMESPACE)/nginx-config
+          - -default-server-tls-secret=$(POD_NAMESPACE)/default-server-secret
+          - -wildcard-tls-secret=$(POD_NAMESPACE)/wildcard-tls-secret
+          - -enable-app-protect
+          - -enable-app-protect-dos
+         #- -v=3 # Enables extensive logging. Useful for troubleshooting.
+         #- -report-ingress-status
+         #- -external-service=nginx-ingress
+          - -ingresslink=il-cluster-vip
+         #- -enable-prometheus-metrics
+         #- -global-configuration=$(POD_NAMESPACE)/nginx-configuration
+          - -nginx-status-allow-cidrs=0.0.0.0/0
+          - -enable-preview-policies
+          - -enable-snippets
+#      imagePullSecrets:
+#      - name: registry-secret-local
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: infra
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: nginx-ingress
+```
+
 3. Uncomment the global configuration section under args. Make sure to maintain the spacing:
 
 ```other

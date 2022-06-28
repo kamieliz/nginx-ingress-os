@@ -9,6 +9,7 @@ This lab covers installing NGINX Ingress Controller on the OpenShift Container P
 5. [Deploying NGINX Ingress Operator](#deploying-nginx-ingress-operator)
 6. [Deploying TCP service](#deploying-tcp-service)
 7. [Monitoring and Testing TCP Service](#monitoring-and-testing-tcp-service)
+8. [Additional Resources](#additional-resources)
 
 # NGINX Ingress Controller on OpenShift
 
